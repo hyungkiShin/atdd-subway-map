@@ -76,40 +76,96 @@ class LineAcceptanceTest {
         지하철_라인생성(이호선);
 
         // when
-        final List<String> lineNames = getLineNames();
+        final List<String> lineNames = 지하철_목록의_이름_조회();
 
         // then
         assertThat(lineNames).hasSize(2);
     }
 
-    @Comment("지하철 노선을 생성하는 함수")
+
+    @DisplayName("지하철 노선 단건을 조회한다")
+    @Test
+    void getLineTest() {
+        // given
+        지하철_라인생성(신분당선);
+
+        // when
+        ExtractableResponse<Response> response = 지하철노선을_조회한다();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat((String) response.jsonPath().get("name")).isEqualTo(NAME);
+    }
+
+    @DisplayName("지하철 노선을 수정한다.")
+    @Test
+    void updateLine() {
+        // given
+        지하철_라인생성(신분당선);
+
+        Map<String, String> map = new HashMap<>();
+        String updateName = "개정된 신분당선";
+        String updateColor = "bg-red-500";
+
+        // when
+        지하철_노선을_수정한다(updateName, updateColor);
+
+        final ExtractableResponse<Response> response = 지하철노선을_조회한다();
+
+        // then
+        assertThat((String) response.jsonPath().get("name")).isEqualTo(updateName);
+        assertThat((String) response.jsonPath().get("color")).isEqualTo(updateColor);
+    }
+
+    @Comment("지하철 노선을 생성하는 메서드")
     private ExtractableResponse<Response> 지하철_라인생성(final Map<String, Object> line) {
 
         final LineRequest param = MapHelper.readValue(line, LineRequest.class);
 
-         return RestAssured.given().log().all()
-                 .contentType(JSON)
-                 .body(param)
-                 .when().post(LINE_PATH)
-                 .then().log().all()
-                 .extract();
+        return RestAssured.given().log().all()
+                .contentType(JSON)
+                .body(param)
+                .when().post(LINE_PATH)
+                .then().log().all()
+                .extract();
     }
 
+
     @Comment("지하철 노선 목록의 이름을 반환하는 함수")
-    private List<String> getLineNames() {
-        return getLines().stream()
+    private List<String> 지하철_목록의_이름_조회() {
+        return 지하철_목록조회().stream()
                 .map(LineResponse::getName)
                 .collect(Collectors.toList());
     }
 
     @Comment("지하철 노선 목록을 반환하는 함수")
-    private List<LineResponse> getLines() {
+    private List<LineResponse> 지하철_목록조회() {
         return RestAssured
                 .given().accept(APPLICATION_JSON_VALUE)
                 .when().get(LINE_PATH)
                 .then().statusCode(HttpStatus.OK.value())
                 .extract().jsonPath()
                 .getList("", LineResponse.class);
+    }
+
+    @Comment("지하철 노선을 수정하는 메서드")
+    private void 지하철_노선을_수정한다(final String newLineName, final String newLinColor) {
+        RestAssured
+                .given()
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(Map.of("name", newLineName, "color", newLinColor))
+                .when()
+                .put("/lines/{id}", 1)
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Comment("지하철 노선을 수정하는 메서드")
+    private ExtractableResponse<Response> 지하철노선을_조회한다() {
+        return RestAssured.given().log().all()
+                .when().get("/lines/{id}",1)
+                .then().log().all()
+                .extract();
     }
 
 }

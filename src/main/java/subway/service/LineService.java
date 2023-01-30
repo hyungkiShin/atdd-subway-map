@@ -49,4 +49,19 @@ public class LineService {
                 .map(this::getStationsInLine)
                 .collect(Collectors.toList());
     }
+
+    public LineResponse getLine(Long id) {
+        final Line line = lineRepository.findById(id).orElseThrow();
+        return getStationsInLine(line);
+    }
+
+    public Line findLine(Long id) {
+        return lineRepository.findById(id).orElseThrow(RuntimeException::new);
+    }
+
+    @Transactional
+    public void updateLine(Long id, final LineRequest lineRequest) {
+        Line line = findLine(id);
+        line.update(lineRequest.getName(), lineRequest.getColor());
+    }
 }

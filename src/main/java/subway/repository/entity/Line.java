@@ -40,4 +40,9 @@ public class Line {
 
     @Comment("노선 거리")
     private int distance;
+
+    public void update(final String name, final String color) {
+        this.name = name;
+        this.color = color;
+    }
 }
