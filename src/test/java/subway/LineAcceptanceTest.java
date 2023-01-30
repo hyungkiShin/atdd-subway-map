@@ -117,6 +117,20 @@ class LineAcceptanceTest {
         assertThat((String) response.jsonPath().get("color")).isEqualTo(updateColor);
     }
 
+    @DisplayName("지하철 노선을 삭제한다.")
+    @Test
+    void deleteLine() {
+        // given
+        지하철_라인생성(신분당선);
+
+        // when
+        지하철_노선을_삭제한다();
+
+        // then
+        final List<LineResponse> response = 지하철_목록조회();
+        assertThat(response).isEmpty();
+    }
+
     @Comment("지하철 노선을 생성하는 메서드")
     private ExtractableResponse<Response> 지하철_라인생성(final Map<String, Object> line) {
 
@@ -160,12 +174,22 @@ class LineAcceptanceTest {
                 .statusCode(HttpStatus.OK.value());
     }
 
-    @Comment("지하철 노선을 수정하는 메서드")
+    @Comment("지하철 노선을 조회하는 메서드")
     private ExtractableResponse<Response> 지하철노선을_조회한다() {
         return RestAssured.given().log().all()
                 .when().get("/lines/{id}",1)
                 .then().log().all()
                 .extract();
+    }
+
+    @Comment("지하철 노선을 삭제하는 메서드")
+    private void 지하철_노선을_삭제한다() {
+        RestAssured
+                .given()
+                .when()
+                .delete("/lines/{id}", 1)
+                .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
 }
