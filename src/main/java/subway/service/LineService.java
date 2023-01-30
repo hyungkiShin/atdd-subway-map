@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.controller.request.LineRequest;
 import subway.controller.response.LineResponse;
 import subway.controller.response.StationResponse;
+import subway.exception.SubwayException;
+import subway.exception.message.SubwayErrorCode;
 import subway.repository.LineRepository;
 import subway.repository.StationRepository;
 import subway.repository.entity.Line;
@@ -35,28 +37,21 @@ public class LineService {
 
     private LineResponse getStationsInLine(Line stationLine) {
         List<Station> stations = stationRepository.findAllByIdIn(List.of(stationLine.getDownStationId(), stationLine.getUpStationId()));
-        return LineResponse.from(
-                stationLine,
-                stations.stream()
-                        .map(StationResponse::from)
-                        .collect(toList())
-        );
+        return LineResponse.from(stationLine, stations.stream().map(StationResponse::from).collect(toList()));
     }
 
     public List<LineResponse> getLines() {
         final List<Line> lines = lineRepository.findAll();
-        return lines.stream()
-                .map(this::getStationsInLine)
-                .collect(Collectors.toList());
+        return lines.stream().map(this::getStationsInLine).collect(Collectors.toList());
     }
 
     public LineResponse getLine(Long id) {
-        final Line line = lineRepository.findById(id).orElseThrow();
+        final Line line = findLine(id);
         return getStationsInLine(line);
     }
 
     public Line findLine(Long id) {
-        return lineRepository.findById(id).orElseThrow(RuntimeException::new);
+        return lineRepository.findById(id).orElseThrow(() -> new SubwayException(SubwayErrorCode.NOT_FOUND_STATION));
     }
 
     @Transactional
