@@ -1,6 +1,7 @@
 package subway.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.controller.request.LineRequest;
@@ -14,6 +15,9 @@ import subway.repository.entity.Station;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -35,7 +39,14 @@ public class LineService {
                 stationLine,
                 stations.stream()
                         .map(StationResponse::from)
-                        .collect(Collectors.toList())
+                        .collect(toList())
         );
+    }
+
+    public List<LineResponse> getLines() {
+        final List<Line> lines = lineRepository.findAll();
+        return lines.stream()
+                .map(this::getStationsInLine)
+                .collect(Collectors.toList());
     }
 }

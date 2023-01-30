@@ -1,7 +1,7 @@
 package subway.controller.request;
 
 import lombok.Getter;
-import subway.common.Discription;
+import subway.common.Comment;
 import subway.repository.entity.Line;
 
 import javax.validation.constraints.NotNull;
@@ -9,21 +9,21 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class LineRequest implements Entityable {
 
-    @Discription("노선 이름")
+    @Comment("노선 이름")
     @NotNull
     private String name;
 
-    @Discription("노선 색")
+    @Comment("노선 색")
     @NotNull
     private String color;
 
-    @Discription("노선 시작역")
+    @Comment("노선 시작역")
     private Long upStationId;
 
-    @Discription("노선 종료역")
+    @Comment("노선 종료역")
     private Long downStationId;
 
-    @Discription("노선 거리")
+    @Comment("노선 거리")
     private int distance;
 
     @Override

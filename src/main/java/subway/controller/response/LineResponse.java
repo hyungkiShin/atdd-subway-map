@@ -14,12 +14,15 @@ public class LineResponse {
 
     private String name;
 
+    private String color;
+
     private List<StationResponse> stations;
 
     public static LineResponse from(final Line stationLine, final List<StationResponse> collect) {
         return LineResponse.builder()
                 .id(stationLine.getId())
                 .name(stationLine.getName())
+                .color(stationLine.getColor())
                 .stations(collect)
                 .build();
     }
